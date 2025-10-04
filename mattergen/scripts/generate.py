@@ -1,7 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
+
 import os
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "0"
+
+import torch
+torch.set_default_device("cpu")  # <- forces new tensors/modules to be on CPU
 from pathlib import Path
 from typing import Literal
 
@@ -11,7 +16,6 @@ from pymatgen.core.structure import Structure
 from mattergen.common.data.types import TargetProperty
 from mattergen.common.utils.data_classes import PRETRAINED_MODEL_NAME, MatterGenCheckpointInfo, ProgressCallback
 from mattergen.generator import CrystalGenerator
-
 
 def main(
     output_path: str,

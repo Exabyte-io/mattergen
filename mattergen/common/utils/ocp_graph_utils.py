@@ -112,7 +112,7 @@ def radius_graph_pbc(
                     "Different structures in the batch have different PBC configurations. This is not currently supported."
                 )
 
-    natoms_squared = (natoms**2).long()
+    natoms_squared = (natoms.to(dtype=torch.float32) ** 2).long()
 
     # index offset between images
     index_offset = torch.cumsum(natoms, dim=0) - natoms

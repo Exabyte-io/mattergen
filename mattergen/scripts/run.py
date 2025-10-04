@@ -7,6 +7,7 @@ import logging
 import hydra
 import omegaconf
 import torch
+torch.set_default_device("cpu")
 from omegaconf import OmegaConf
 
 from mattergen.common.utils.globals import MODELS_PROJECT_ROOT

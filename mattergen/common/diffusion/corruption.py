@@ -113,7 +113,7 @@ class LatticeVPSDE(VPSDE):
         # self.limit_density = limit_info / mean lattice vector length**3
 
         # shape=[Ncrystals,]
-        n_atoms = batch[self.limit_info_key]
+        n_atoms = batch[self.limit_info_key].to(dtype=torch.float32)
 
         # shape=[Ncrystals, 3, 3]
         return torch.pow(
@@ -149,7 +149,13 @@ class LatticeVPSDE(VPSDE):
         # per lattice vector. We hope that prod_i std_i scales as the standard deviation
         # of the actual volume. NOTE: we return variance here, hence 2 in the power
         # shape=(Ncrystals, 3, 3) for limit_info.shape=[Ncrystals,]
-        out = torch.pow(n_atoms_expanded, 2.0 / 3).to(x.device) * self.limit_var_scaling_constant
+        n_atoms_expanded = n_atoms_expanded.to(device=x.device, dtype=torch.float32)
+        out = torch.pow(n_atoms_expanded, 2.0 / 3) * (
+            self.limit_var_scaling_constant if isinstance(self.limit_var_scaling_constant, float)
+            else self.limit_var_scaling_constant.to(device=x.device, dtype=torch.float32)
+        )
+        # (optional) match x’s dtype
+        out = out.to(dtype=x.dtype)
 
         return out
 
@@ -230,7 +236,7 @@ class NumAtomsVarianceAdjustedWrappedVESDE(WrappedVESDE):
         self.limit_info_key = limit_info_key
 
     def std_scaling(self, batch: BatchedData) -> torch.Tensor:
-        return batch[self.limit_info_key] ** (-1 / 3)
+        return batch[self.limit_info_key].to(dtype=torch.float32) ** (-1 / 3)
 
     def marginal_prob(
         self,
