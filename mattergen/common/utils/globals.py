@@ -15,7 +15,7 @@ from omegaconf import OmegaConf
 
 @lru_cache
 def get_device() -> torch.device:
-    default_device = torch.get_default_device()
+    default_device = torch.get_default_device() if hasattr(torch, "get_default_device") else None
     if default_device and default_device != "meta":
         return torch.device(default_device)
     if torch.cuda.is_available():
