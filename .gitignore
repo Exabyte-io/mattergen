@@ -398,4 +398,8 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Virtual environment
-.venv/
+.venv*
+.idea/
+.python-version
+mattergen.egg-info/
+results/

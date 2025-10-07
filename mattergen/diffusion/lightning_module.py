@@ -9,6 +9,8 @@ from typing import Any, Dict, Generic, Optional, Protocol, Sequence, TypeVar, Un
 import numpy as np
 import pytorch_lightning as pl
 import torch
+torch.set_default_device("cpu")  # <- forces new tensors/modules to be on CPU
+
 from hydra.errors import InstantiationException
 from hydra.utils import instantiate
 from omegaconf import DictConfig
@@ -19,6 +21,7 @@ from tqdm import tqdm
 from mattergen.diffusion.config import Config
 from mattergen.diffusion.data.batched_data import BatchedData
 from mattergen.diffusion.diffusion_module import DiffusionModule
+
 
 T = TypeVar("T", bound=BatchedData)
 
@@ -77,7 +80,8 @@ class DiffusionLightningModule(pl.LightningModule, Generic[T]):
     ) -> DiffusionLightningModule:
         """Load model from checkpoint. kwargs are passed to hydra's instantiate and can override
         arguments from the checkpoint config."""
-        checkpoint = torch.load(checkpoint_path, map_location=map_location)
+        # checkpoint = torch.load(checkpoint_path, map_location="cpu)
+        checkpoint = torch.load(checkpoint_path, map_location="cpu")
 
         # The config should have been saved in the checkpoint by AddConfigCallback in run.py
         config = Config(**checkpoint["config"])
@@ -106,7 +110,7 @@ class DiffusionLightningModule(pl.LightningModule, Generic[T]):
         """Load model from checkpoint, but instead of using the config stored in the checkpoint,
         use the config passed in as an argument. This is useful when, e.g., an unused argument was
         removed in the code but is still present in the checkpoint config."""
-        checkpoint = torch.load(checkpoint_path, map_location=map_location)
+        checkpoint = torch.load(checkpoint_path, map_location="cpu")
 
         lightning_module = instantiate(config)
         assert isinstance(lightning_module, cls)
